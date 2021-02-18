@@ -27,8 +27,9 @@ def download_file(url):
 
 
 # root_link = r"http://www.cs.princeton.edu/~wayne/kleinberg-tardos/"
-root_link = r"http://www.cs.cmu.edu/~epxing/Class/10708-14/lecture.html"
+# root_link = r"http://www.cs.cmu.edu/~epxing/Class/10708-14/lecture.html"
 
+root_link = r'https://www.cs.cmu.edu/~epxing/Class/10708-20/lectures.html'
 
 def main():
     req = requests.get(root_link, headers=headers)
