@@ -4,10 +4,19 @@ crawler for pdf slides download
 
 import os
 import requests
+import argparse
 from bs4 import BeautifulSoup
 from multiprocessing import Pool
 from urllib import parse
 from functools import partial
+from tqdm import tqdm
+
+parser = argparse.ArgumentParser(description='Parameters for PDF crawler')
+parser.add_argument('--folder', default='slides', type=str, help='folder name')
+parser.add_argument('--pool', default=8, type=int, help='pool number')
+parser.add_argument('--mode', default='keyword', type=str, help='filter mode, keyword/ruleout')
+parser.add_argument('--record', default=True, type=bool, help='whether to write links to files')
+args = parser.parse_args()
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -30,8 +39,7 @@ def download_file(url, folder_name):
 
 # root_link = r"http://www.cs.princeton.edu/~wayne/kleinberg-tardos/"
 # root_link = r"http://www.cs.cmu.edu/~epxing/Class/10708-14/lecture.html"
-
-root_link = r'https://www.cs.cmu.edu/~epxing/Class/10708-20/lectures.html'
+# root_link = r'https://www.cs.cmu.edu/~epxing/Class/10708-20/lectures.html'
 
 
 def filter(path, keywords):
@@ -53,13 +61,17 @@ def filter(path, keywords):
 
 
 def main():
-    folder_name = input('folder name:')
+    # root_link = input('input link here: ')
+    root_link = r'https://www.cs.cmu.edu/~epxing/Class/10708-20/lectures.html'
+    root_link = root_link.lstrip()
+    root_link = root_link.rstrip()
+    folder_name = input('folder name: (default: slides) ')
     if folder_name: 
         if not os.path.exists(folder_name):
             path = "./" + folder_name
-            os.makedirs(path);
+            os.makedirs(path)
     else:
-        folder_name = './'
+        folder_name = args.folder
         
     filter_word = 1
     filter_list = []
@@ -91,13 +103,26 @@ def main():
         
         for new_link in new_links:
             print("New link: {}".format(new_link))
-        print('\n')
-        for filter_out in filter_outs:
-            print('**filter out {}'.format(filter_out))
+        print('{} files int total.\n'.format(len(new_links)))
 
-        pool = Pool(8)
-        func = partial(download_file, folder_name=folder_name)
-        results = pool.map(func, new_links)
+        if args.record is True:
+            with open(os.path.join(folder_name, 'filter_out.txt'), 'w') as f:
+                for filter_out in filter_outs:
+                    f.write(filter_out + '\n')
+            print('write to filter_out.txt')
+        else:
+            for filter_out in filter_outs:
+                print('**filter out {}'.format(filter_out))
+
+        # pool = Pool(8)
+        _func = partial(download_file, folder_name=folder_name)
+
+        pool_num = args.pool
+        with Pool(pool_num) as pool:
+            r = list(tqdm(pool.map(_func, new_links), total=len(new_links)))
+            pool.close()
+            pool.join()
+
         print("all download finished\n")
 
 
