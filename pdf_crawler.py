@@ -63,6 +63,7 @@ def filter(path, keywords):
 def main():
     # root_link = input('input link here: ')
     root_link = r'https://www.cs.cmu.edu/~epxing/Class/10708-20/lectures.html'
+    root_link = r'http://asl.stanford.edu/aa203/'
     root_link = root_link.lstrip()
     root_link = root_link.rstrip()
     folder_name = input('folder name: (default: slides) ')
@@ -105,14 +106,14 @@ def main():
             print("New link: {}".format(new_link))
         print('{} files int total.\n'.format(len(new_links)))
 
-        if args.record is True:
-            with open(os.path.join(folder_name, 'filter_out.txt'), 'w') as f:
-                for filter_out in filter_outs:
-                    f.write(filter_out + '\n')
-            print('write to filter_out.txt')
-        else:
-            for filter_out in filter_outs:
-                print('**filter out {}'.format(filter_out))
+        # if args.record is True:
+        #     with open(os.path.join(folder_name, 'filter_out.txt'), 'w') as f:
+        #         for filter_out in filter_outs:
+        #             f.write(filter_out + '\n')
+        #     print('write to filter_out.txt')
+        # else:
+        for filter_out in filter_outs:
+            print('**filter out {}'.format(filter_out))
 
         # pool = Pool(8)
         _func = partial(download_file, folder_name=folder_name)
